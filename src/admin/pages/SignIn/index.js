@@ -2,29 +2,41 @@ import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 
 import Logo from "../../assets/logo.png";
-import api from "../../services/api";
-import { login } from "../../services/auth";
+import api from "../../../services/api";
+import { login } from "../../../services/auth";
 
 import { Form, Container } from "./styles";
 
 class SignIn extends Component {
-    state = {
-      email: "",
-      password: "",
-      error: ""
-    };
+
+    constructor(props) {
+        super(props);
+        this.state = {
+          email: "",
+          password: "",
+          error: ""
+        };
+    }
+    
 
     handleSignIn = async e => {
+        e.preventDefault()
         const { email, password } = this.state
         if(!email || !password){
             this.setState({ error: "Preencha e-mail e senha para continuar!" });
         }else{
             try {
-                const response = await api.post("/sessions", { email, password });
+                const headear = {
+                    headers: {
+                        "Access-Control-Allow-Origin": "true"
+                    }
+                }
+                const response = await api.post("/sessions", { email, password }, headear);
                 login(response.data.token);
-                this.props.history.push("/SignUp");
-
+                this.props.history.push("/admin/products");
+                console.log("1");
             } catch (err) {
+                console.log("a");
                 this.setState({
                     error:
                       "Houve um problema com o login, verifique suas credenciais. T.T"
@@ -32,10 +44,7 @@ class SignIn extends Component {
             }
         }
     };
-
-
     render(){
-
         return (
             <Container>
                 <Form onSubmit={this.handleSignIn}>
@@ -54,12 +63,9 @@ class SignIn extends Component {
                     <button type="submit">Entrar</button>
                     <hr />
                     <Link to="/signup">Criar conta grátis</Link>
-
                 </Form>
             </Container>
         );
-
     }
 }
-
 export default withRouter(SignIn);
